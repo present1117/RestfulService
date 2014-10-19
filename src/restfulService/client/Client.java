@@ -29,7 +29,7 @@ public class Client {
                 OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
                 out.write(jsonObject.toString());
                 out.close();
- 
+                System.out.println();
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 while (in.readLine() != null) {
                 }
