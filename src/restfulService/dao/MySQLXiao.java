@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MySQLXiao {
@@ -25,9 +26,9 @@ public class MySQLXiao {
             System.out.println("DataBase table accessed");
             while(result.next()){
             	JSONObject object = new JSONObject();
-               object.append("lname", result.getString("lname"));
-               object.append("fname", result.getString("fname"));
-               resultObject.put(object);
+            	object.put("lname", result.getString("lname"));
+            	object.put("fname", result.getString("fname"));
+            	resultObject.put(object);
             }
 //            System.out.println(resultObject.toString());
             con.close();
@@ -38,6 +39,33 @@ public class MySQLXiao {
 		return resultObject;
 	}
 
+	/**
+	 * Use insert to insert the corresponding columns.
+	 * @param object
+	 * @return
+	 * @throws JSONException
+	 */
+	public static String mySQLConnINSERT(String object) throws JSONException {
+		JSONObject data = new JSONObject(object);
+		String firstName = (String) data.get("fname");
+		String lastName = (String) data.get("lname");
+		try{
+            connectionQuery();
+            PreparedStatement statement =  con.prepareStatement("INSERT INTO name(fname,lname) VALUES (\""+firstName+"\",\""+lastName+"\")");/*write query inside of prepared statement*/
+            int result = statement.executeUpdate();
+            System.out.println("DataBase table accessed");
+//            while(result.next()){
+//            	
+//            }
+            con.close();
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage().toString());
+        }
+		return "SUCC";
+	}
+	
+	
 	
 	/**
 	 * Create connection to the database.
@@ -61,4 +89,6 @@ public class MySQLXiao {
             System.out.println("False querry");
         }
     }
+
+
 }

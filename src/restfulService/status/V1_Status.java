@@ -1,13 +1,13 @@
 package restfulService.status;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import restfulService.dao.MySQLXiao;
 
@@ -72,6 +72,29 @@ public class V1_Status {
         return Response.status(200).entity(sb.toString()).build();
 	}
 	
+	@Path("/database/INSERT")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response RESTINSERT(InputStream incomingData){
+		StringBuilder sb = new StringBuilder();
+		try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(incomingData));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error Parsing: - ");
+        }
+		try {
+			MySQLXiao.mySQLConnINSERT(sb.toString());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//        System.out.println("Data Received: " + result);
+        return Response.status(200).entity("Insert Success").build();
+	}
 	
 	@Path("/database")
 	@GET
@@ -83,6 +106,29 @@ public class V1_Status {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		return myString; 
+		return formatTable(myString);
 	}
+	
+	
+	public String formatTable(String rawData){
+		String result = "<table border=\"1\"><tr><th>FirstName</th><th>LastName</th></tr>";
+		try {
+			JSONArray jsondata = new JSONArray(rawData);
+			for(int i = 0; i < jsondata.length(); ++i){
+				
+				result += "<tr>";
+				result+="<td>";
+				result += ((JSONObject)jsondata.get(i)).get("fname");
+				result += "</td><td>";
+				result += ((JSONObject)jsondata.get(i)).get("lname");
+				result +="</td></tr>";
+			}
+			result+="</table>";
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
 }
